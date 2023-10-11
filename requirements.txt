@@ -1,0 +1,7 @@
+openai~=0.27.7
+streamlit
+python-dotenv~=0.19.1
+azure-storage-blob~=12.9.0
+requests
+Pillow
+speech_recognition
