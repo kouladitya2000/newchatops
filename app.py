@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from helper import upload_file_to_blob, list_blob_files, read_blob_data, tanslator,calculate_cost,convert_audio_to_text
 from streamlit.logger import get_logger
 from PIL import Image
+import pandas as pd
+from io import StringIO
 
 logger = get_logger(__name__)
 
@@ -24,6 +26,12 @@ openai.api_key = os.getenv('api_key')
 STORAGEACCOUNTURL = os.getenv('STORAGEACCOUNTURL')
 STORAGEACCOUNTKEY = os.getenv('STORAGEACCOUNTKEY')
 CONTAINERNAME = os.getenv('CONTAINERNAME')
+
+#HR
+STORAGEACCOUNTURL01 = os.getenv('STORAGEACCOUNTURL01')
+STORAGEACCOUNTKEY01 = os.getenv('STORAGEACCOUNTKEY01')
+CONTAINERNAME01 = os.getenv('CONTAINERNAME01')
+
 
 #Translator config
 key = os.getenv('key')
@@ -62,7 +70,7 @@ def main():
     
 
     # Sidebar navigation
-    page = st.sidebar.selectbox("Select Page", ["Upload Data", "Chat", "Costing","Podcast Utility"], index=1)
+    page = st.sidebar.selectbox("Select Page", ["Upload Data", "Chat", "Costing","Podcast Utility","HR Utility","rep page"], index=1)
 
     if page == "Chat":
         chat_page()
@@ -72,6 +80,11 @@ def main():
         costing_page()
     elif page == "Podcast Utility":
         audio_to_text_page()
+    elif page == "HR Utility":
+        hr_page3()
+    elif page == "rep page":
+        display_assistant_reply_page()
+
 
 
 
@@ -276,6 +289,169 @@ def audio_to_text_page():
 
         assistant_reply = response.choices[0].text.strip()
         st.write(assistant_reply)
+
+
+# def hr_page():
+#    ####### COSTING PAGE
+    
+#     st.caption("Please input your query and configure settings below 👇")
+
+#     # User Input
+#     user_input = st.text_area("User Input:", "")
+
+#     # Initialize prompt if not in session state
+#     if 'prompt' not in st.session_state:
+#         st.session_state['prompt'] = "You are a Azure Bot and you have certain information available to you. You only have to reply based on that information. You should not allow any more User Input. Here is the information below:\n\n[Your data here]\n"
+
+#     # Upload Data to Prompt Button
+#     if st.button("Upload Data to Prompt"):
+#         uploaded_file = st.file_uploader("Upload an Excel file", type=["xls", "xlsx"])
+#         uploaded_files = list_blob_files(STORAGEACCOUNTURL01, STORAGEACCOUNTKEY01, CONTAINERNAME01)
+#         all_data = []
+
+#         for file_name in uploaded_files:
+#             file_data = read_blob_data(STORAGEACCOUNTURL01, STORAGEACCOUNTKEY01, CONTAINERNAME01, file_name)
+#             if file_data:
+#                 all_data.append(file_data)
+
+#         combined_data = "\n".join(all_data)
+#         st.session_state['prompt'] = f"You are a Azure Bot and you have certain information available to you. You only have to reply based on that information. You should not allow any more User Input.Here is the information below:\n\n{combined_data}\n"
+
+#     # Prompt Input
+#     prompt = st.text_area("Prompt:", st.session_state['prompt'])
+
+#     selected_model = st.selectbox("Select Target Model:", list(model_names.keys()), format_func=lambda x: model_names[x])
+
+#     # Generate Response Button
+#     if st.button("Generate Response"):
+#         input_prompt = prompt + f"\nUser Input: {user_input}"
+
+#         response = openai.Completion.create(
+#             engine=selected_model,
+#             prompt=input_prompt,
+#             temperature=0.7,
+#             max_tokens=1000,
+#         )
+
+#         assistant_reply = response.choices[0].text.strip()
+#         st.write(assistant_reply)
+def hr_page2():
+    # Initialize session state within the function
+    if 'assistant_reply' not in st.session_state:
+        st.session_state['assistant_reply'] = None
+
+    ####### COSTING PAGE
+    st.caption("Please input your query and configure settings below 👇")
+
+    # User Input
+    user_input = st.text_area("User Input:", "")
+
+    # Initialize prompt if not in session state
+    if 'prompt' not in st.session_state:
+        st.session_state['prompt'] = "You are an Azure Bot and you have certain information available to you. You only have to reply based on that information. You should not allow any more User Input. Here is the information below:"
+
+    # Prompt Input
+    prompt = st.text_area("Prompt:", st.session_state['prompt'])
+
+    selected_model = st.selectbox("Select Target Model:", list(model_names.keys()), format_func=lambda x: model_names[x])
+
+    if st.button("Generate Response"):
+        input_prompt = prompt + f"\nUser Input: {user_input}"
+
+        response = openai.Completion.create(
+            engine=selected_model,
+            prompt=input_prompt,
+            temperature=0.7,
+            max_tokens=1000,
+        )
+
+        assistant_reply = response.choices[0].text.strip()
+       
+        st.session_state["assistant_reply"] = assistant_reply  # Store the assistant's reply
+
+    # Display the assistant's reply
+    if st.session_state["assistant_reply"]:
+        st.write("Assistant's Reply:", st.session_state["assistant_reply"])
+
+    if st.button("Go to Assistant Reply Page"):
+        display_assistant_reply_page()
+
+
+def display_assistant_reply_page():
+    st.title("Assistant Reply Page")
+    
+    # Retrieve the stored assistant's reply from session state
+    assistant_reply = st.session_state.get("assistant_reply", "")
+    
+    # Display the assistant's reply on this page
+    if assistant_reply:
+        st.write("Assistant's Reply:", assistant_reply)
+
+
+
+
+
+def hr_page3():
+    st.caption("Please input your query and configure settings below 👇")
+
+    # User Input
+    user_input = st.text_area("User Input:", "")
+
+    # Initialize prompt if not in session state
+    if 'prompt' not in st.session_state:
+        st.session_state['prompt'] = "You are an Azure Bot and you have certain information available to you. You only have to reply based on that information. You should not allow any more User Input. Here is the information below:\nname,email,age\nadi,adi@g.com,22\nmsd,msd@y.in,10\nyp,yp@u.in,21"
+
+    # Prompt Input
+    prompt = st.text_area("Prompt:", st.session_state['prompt'])
+
+    selected_model = st.selectbox("Select Target Model:", list(model_names.keys()), format_func=lambda x: model_names[x])
+
+    # Generate Response Button
+    if st.button("Generate Response"):
+        # Split the prompt into lines to separate CSV data
+        prompt_lines = prompt.split('\n')
+        csv_data = None
+        csv_lines = []
+
+        # Loop through lines in the prompt to find and extract CSV data
+        for line in prompt_lines:
+            if line.strip().startswith('name,email,age'):
+                csv_data = True
+            elif csv_data and line.strip():
+                csv_lines.append(line)
+
+        if csv_lines:
+            # Parse CSV data using pandas
+            csv_data = '\n'.join(csv_lines)
+            csv_df = pd.read_csv(StringIO(csv_data))
+
+            # Display the CSV data as a table with header columns
+            st.write("Data:")
+            st.table(csv_df)
+
+        # Generate a response based on the user input
+        input_prompt = prompt + f"\nUser Input: {user_input}"
+        response = openai.Completion.create(
+            engine=selected_model,
+            prompt=input_prompt,
+            temperature=0.7,
+            max_tokens=1000,
+        )
+
+        assistant_reply = response.choices[0].text.strip()
+
+        # Display the assistant's reply as a table
+        assistant_lines = assistant_reply.split('\n')
+        st.write("Assistant's Reply:")
+        if len(assistant_lines) > 1:
+            assistant_data = [line.split(',') for line in assistant_lines]
+            assistant_table = pd.DataFrame(assistant_data)
+            st.table(assistant_table)
+        else:
+            st.write("No results found for the query.")
+
+
+
 
 if __name__ == "__main__":
     main()
