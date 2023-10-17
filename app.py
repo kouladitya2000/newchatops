@@ -1,5 +1,5 @@
 # main_app.py
-
+import time
 import streamlit as st
 import openai
 import os
@@ -70,7 +70,7 @@ def main():
     
 
     # Sidebar navigation
-    page = st.sidebar.selectbox("Select Page", ["Upload Data", "Chat", "Costing","Podcast Utility","HR Utility","rep page"], index=1)
+    page = st.sidebar.selectbox("Select Page", ["Upload Data", "Chat", "Costing","Podcast Utility","HR Utility","HR Response Page"], index=1)
 
     if page == "Chat":
         chat_page()
@@ -81,8 +81,8 @@ def main():
     elif page == "Podcast Utility":
         audio_to_text_page()
     elif page == "HR Utility":
-        hr_page3()
-    elif page == "rep page":
+        hr_page()
+    elif page == "HR Response Page":
         display_assistant_reply_page()
 
 
@@ -101,9 +101,9 @@ def upload_page():
             file_name = upload_file_to_blob(file, STORAGEACCOUNTURL, STORAGEACCOUNTKEY, CONTAINERNAME)
             st.success(f"File '{file_name}' uploaded to '{CONTAINERNAME}/{file_name}'")
 
-    # Display uploaded file names below the upload section
+    # Display uploaded file names below the upload section 
     st.caption("Uploaded Files in Azure Blob Storage")
-    st.write("For large documents click on this link. [Add_Document](https://hsbcai-site.azurewebsites.net/Add_Document)")
+    st.write("For large documents click on this link. [Add_Document](https://hsbc-rucco.azurewebsites.net/Add_Document)")
     uploaded_files = list_blob_files(STORAGEACCOUNTURL, STORAGEACCOUNTKEY, CONTAINERNAME)
     for file_name in uploaded_files:
         st.write(file_name)
@@ -235,7 +235,7 @@ def chat_page():
             logger.info(translate)
             st.text(translate)
 
-    st.write("For doing Chat on large Uploaded Document use this. [Document Chat](https://hsbcai-site.azurewebsites.net/Chat)")
+    st.write("For doing Chat on large Uploaded Document use this. [Document Chat](https://hsbc-rucco.azurewebsites.net/Chat)")
 
 
 def audio_to_text_page():
@@ -291,56 +291,13 @@ def audio_to_text_page():
         st.write(assistant_reply)
 
 
-# def hr_page():
-#    ####### COSTING PAGE
-    
-#     st.caption("Please input your query and configure settings below 👇")
+#PERFECTO
+# # Initialize assistant_table as an empty DataFrame
+assistant_table = pd.DataFrame()
 
-#     # User Input
-#     user_input = st.text_area("User Input:", "")
+def hr_page():
+    global assistant_table  # Add global declaration for the variable
 
-#     # Initialize prompt if not in session state
-#     if 'prompt' not in st.session_state:
-#         st.session_state['prompt'] = "You are a Azure Bot and you have certain information available to you. You only have to reply based on that information. You should not allow any more User Input. Here is the information below:\n\n[Your data here]\n"
-
-#     # Upload Data to Prompt Button
-#     if st.button("Upload Data to Prompt"):
-#         uploaded_file = st.file_uploader("Upload an Excel file", type=["xls", "xlsx"])
-#         uploaded_files = list_blob_files(STORAGEACCOUNTURL01, STORAGEACCOUNTKEY01, CONTAINERNAME01)
-#         all_data = []
-
-#         for file_name in uploaded_files:
-#             file_data = read_blob_data(STORAGEACCOUNTURL01, STORAGEACCOUNTKEY01, CONTAINERNAME01, file_name)
-#             if file_data:
-#                 all_data.append(file_data)
-
-#         combined_data = "\n".join(all_data)
-#         st.session_state['prompt'] = f"You are a Azure Bot and you have certain information available to you. You only have to reply based on that information. You should not allow any more User Input.Here is the information below:\n\n{combined_data}\n"
-
-#     # Prompt Input
-#     prompt = st.text_area("Prompt:", st.session_state['prompt'])
-
-#     selected_model = st.selectbox("Select Target Model:", list(model_names.keys()), format_func=lambda x: model_names[x])
-
-#     # Generate Response Button
-#     if st.button("Generate Response"):
-#         input_prompt = prompt + f"\nUser Input: {user_input}"
-
-#         response = openai.Completion.create(
-#             engine=selected_model,
-#             prompt=input_prompt,
-#             temperature=0.7,
-#             max_tokens=1000,
-#         )
-
-#         assistant_reply = response.choices[0].text.strip()
-#         st.write(assistant_reply)
-def hr_page2():
-    # Initialize session state within the function
-    if 'assistant_reply' not in st.session_state:
-        st.session_state['assistant_reply'] = None
-
-    ####### COSTING PAGE
     st.caption("Please input your query and configure settings below 👇")
 
     # User Input
@@ -348,58 +305,7 @@ def hr_page2():
 
     # Initialize prompt if not in session state
     if 'prompt' not in st.session_state:
-        st.session_state['prompt'] = "You are an Azure Bot and you have certain information available to you. You only have to reply based on that information. You should not allow any more User Input. Here is the information below:"
-
-    # Prompt Input
-    prompt = st.text_area("Prompt:", st.session_state['prompt'])
-
-    selected_model = st.selectbox("Select Target Model:", list(model_names.keys()), format_func=lambda x: model_names[x])
-
-    if st.button("Generate Response"):
-        input_prompt = prompt + f"\nUser Input: {user_input}"
-
-        response = openai.Completion.create(
-            engine=selected_model,
-            prompt=input_prompt,
-            temperature=0.7,
-            max_tokens=1000,
-        )
-
-        assistant_reply = response.choices[0].text.strip()
-       
-        st.session_state["assistant_reply"] = assistant_reply  # Store the assistant's reply
-
-    # Display the assistant's reply
-    if st.session_state["assistant_reply"]:
-        st.write("Assistant's Reply:", st.session_state["assistant_reply"])
-
-    if st.button("Go to Assistant Reply Page"):
-        display_assistant_reply_page()
-
-
-def display_assistant_reply_page():
-    st.title("Assistant Reply Page")
-    
-    # Retrieve the stored assistant's reply from session state
-    assistant_reply = st.session_state.get("assistant_reply", "")
-    
-    # Display the assistant's reply on this page
-    if assistant_reply:
-        st.write("Assistant's Reply:", assistant_reply)
-
-
-
-
-
-def hr_page3():
-    st.caption("Please input your query and configure settings below 👇")
-
-    # User Input
-    user_input = st.text_area("User Input:", "")
-
-    # Initialize prompt if not in session state
-    if 'prompt' not in st.session_state:
-        st.session_state['prompt'] = "You are an Azure Bot and you have certain information available to you. You only have to reply based on that information. You should not allow any more User Input. Here is the information below:\nname,email,age\nadi,adi@g.com,22\nmsd,msd@y.in,10\nyp,yp@u.in,21"
+        st.session_state['prompt'] = "You are an Azure Bot and you have certain information of employees available to you and it is in CSV format.The first line of data is header and after that there is actual data. You only have to reply based on the information. You should give data about different people in different rows in the dataframe only.Here is the information below:"
 
     # Prompt Input
     prompt = st.text_area("Prompt:", st.session_state['prompt'])
@@ -409,13 +315,13 @@ def hr_page3():
     # Generate Response Button
     if st.button("Generate Response"):
         # Split the prompt into lines to separate CSV data
-        prompt_lines = prompt.split('\n')
+        
         csv_data = None
         csv_lines = []
 
         # Loop through lines in the prompt to find and extract CSV data
-        for line in prompt_lines:
-            if line.strip().startswith('name,email,age'):
+        for line in prompt:
+            if line.strip().startswith('Name,Email,DOJ,WFH,Dept'):
                 csv_data = True
             elif csv_data and line.strip():
                 csv_lines.append(line)
@@ -446,9 +352,51 @@ def hr_page3():
         if len(assistant_lines) > 1:
             assistant_data = [line.split(',') for line in assistant_lines]
             assistant_table = pd.DataFrame(assistant_data)
-            st.table(assistant_table)
+            st.dataframe(assistant_table)  # Use st.dataframe to select rows
+            # st.table(assistant_table)
+
         else:
             st.write("No results found for the query.")
+
+        # Store the assistant's reply in the session state
+        st.session_state["assistant_table"] = assistant_table  # Update the session state
+
+        if st.button("Go to Assistant Reply Page"):
+            display_assistant_reply_page()
+            
+            
+
+
+def display_assistant_reply_page():
+    st.title("Request Page")
+
+    # Retrieve the stored assistant's reply from the session state
+    assistant_table = st.session_state.get("assistant_table", pd.DataFrame())
+
+    # Display the assistant's reply on this page
+    if not assistant_table.empty:
+        st.write("Assistant's Reply:")
+        st.dataframe(assistant_table)  # Use st.dataframe to select rows
+
+        # Add a multiselect widget to select multiple rows
+        selected_rows = st.multiselect("Select Rows for Approval", assistant_table.index)
+        
+        # Check if any rows have been selected for approval
+        if selected_rows:
+            st.write("Details for Selected Rows:")
+            st.dataframe(assistant_table.loc[selected_rows])
+
+            confirm_approval = st.text_input("Do you want to approve these employees? (Type 'yes' or 'no')")
+            if confirm_approval.lower() == 'yes':
+                approved_message = st.empty()
+                approved_message.success("Approved")
+                time.sleep(2)  # Display for 2 seconds
+                approved_message.empty()
+            elif confirm_approval.lower() == 'no':
+                rejected_message = st.empty()
+                rejected_message.error("Rejected")
+                time.sleep(2)  # Display for 2 seconds
+                rejected_message.empty()
 
 
 
