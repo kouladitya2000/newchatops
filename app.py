@@ -305,7 +305,7 @@ def hr_page():
 
     # Initialize prompt if not in session state
     if 'prompt' not in st.session_state:
-        st.session_state['prompt'] = "You are an Azure Bot and you have certain information of employees available to you and it is in CSV format.The first line of data is header and after that there is actual data. You only have to reply based on the information. You should give data about different people in different rows in the dataframe only.Here is the information below:"
+        st.session_state['prompt'] = "You are an intelligent bot made for HR related work and you have certain information of employees available to you and it is in CSV format.The first line of data is header and after that there is actual data. You only have to reply based on the information. Please stay to the point and reply with appropriate information only.You should give data about different people in different rows in the dataframe only.Here is the information below:"
 
     # Prompt Input
     prompt = st.text_area("Prompt:", st.session_state['prompt'])
@@ -352,8 +352,8 @@ def hr_page():
         if len(assistant_lines) > 1:
             assistant_data = [line.split(',') for line in assistant_lines]
             assistant_table = pd.DataFrame(assistant_data)
-            st.dataframe(assistant_table)  # Use st.dataframe to select rows
-            # st.table(assistant_table)
+            #st.dataframe(assistant_table)  # Use st.dataframe to select rows
+            st.table(assistant_table)
 
         else:
             st.write("No results found for the query.")
