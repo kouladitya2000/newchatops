@@ -70,7 +70,7 @@ def main():
     
 
     # Sidebar navigation
-    page = st.sidebar.selectbox("Select Page", ["Upload Data", "Chat", "Costing","Podcast Utility","HR Utility","HR Response Page"], index=1)
+    page = st.sidebar.selectbox("Select Page", ["Upload Data", "Chat", "Costing","Podcast Utility","HR Utility","HR Response Page","test"], index=1)
 
     if page == "Chat":
         chat_page()
@@ -84,6 +84,8 @@ def main():
         hr_page()
     elif page == "HR Response Page":
         display_assistant_reply_page()
+    elif page == "test":
+        display_selected_rows_page()
 
 
 
@@ -340,12 +342,12 @@ def hr_page():
         response = openai.Completion.create(
             engine=selected_model,
             prompt=input_prompt,
-            temperature=0.7,
+            temperature=0.1,
             max_tokens=1000,
         )
 
         assistant_reply = response.choices[0].text.strip()
-
+        
         # Display the assistant's reply as a table
         assistant_lines = assistant_reply.split('\n')
         st.write("Assistant's Reply:")
@@ -354,12 +356,20 @@ def hr_page():
             assistant_table = pd.DataFrame(assistant_data)
             #st.dataframe(assistant_table)  # Use st.dataframe to select rows
             st.table(assistant_table)
+            selected_rows = st.multiselect("Select Rows for Approval", assistant_table.index)
+                    # Check if any rows have been selected for approval
+            if selected_rows:
+                st.write("Details for Selected Rows:")
+                st.dataframe(assistant_table.loc[selected_rows])
+
+                st.session_state["selected_rows"] = selected_rows
 
         else:
             st.write("No results found for the query.")
 
         # Store the assistant's reply in the session state
         st.session_state["assistant_table"] = assistant_table  # Update the session state
+
 
         if st.button("Go to Assistant Reply Page"):
             display_assistant_reply_page()
@@ -386,18 +396,39 @@ def display_assistant_reply_page():
             st.write("Details for Selected Rows:")
             st.dataframe(assistant_table.loc[selected_rows])
 
-            confirm_approval = st.text_input("Do you want to approve these employees? (Type 'yes' or 'no')")
-            if confirm_approval.lower() == 'yes':
-                approved_message = st.empty()
-                approved_message.success("Approved")
-                time.sleep(2)  # Display for 2 seconds
-                approved_message.empty()
-            elif confirm_approval.lower() == 'no':
-                rejected_message = st.empty()
-                rejected_message.error("Rejected")
-                time.sleep(2)  # Display for 2 seconds
-                rejected_message.empty()
+            st.session_state["selected_rows"] = selected_rows
 
+def display_selected_rows_page():
+    st.title("Selected Rows Page")
+
+    # Retrieve the selected rows from the session state
+    selected_rows = st.session_state.get("selected_rows", [])
+    
+    # Retrieve the stored assistant's reply from the session state
+    assistant_table = st.session_state.get("assistant_table", pd.DataFrame())
+
+    # Display the selected rows on this page
+    if selected_rows and not assistant_table.empty:
+        st.write("Selected Rows:")
+        for index in selected_rows:
+            data = assistant_table.loc[index].values  # Get all the values for the row
+            st.text_input(f"Name ({index}):", data[0], key=f"name_{index}")
+            st.text_input(f"Email ({index}):", data[1], key=f"email_{index}")
+            st.text_input(f"DOJ ({index}):", data[2], key=f"doj_{index}")
+            st.text_input(f"WFH ({index}):", data[3], key=f"wfh_{index}")
+            st.text_input(f"Dept ({index}):", data[4], key=f"dept_{index}")
+
+    confirm_approval = st.text_input("Do you want to approve these employees? (Type 'yes' or 'no')")
+    if confirm_approval.lower() == 'yes':
+        approved_message = st.empty()
+        approved_message.success("Approved")
+        time.sleep(2)  # Display for 2 seconds
+        approved_message.empty()
+    elif confirm_approval.lower() == 'no':
+        rejected_message = st.empty()
+        rejected_message.error("Rejected")
+        time.sleep(2)  # Display for 2 seconds
+        rejected_message.empty()
 
 
 
