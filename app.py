@@ -84,7 +84,7 @@ def main():
         hr_page()
     elif page == "HR Response Page":
         display_assistant_reply_page()
-    elif page == "test":
+    elif page == "Request":
         display_selected_rows_page()
 
 
