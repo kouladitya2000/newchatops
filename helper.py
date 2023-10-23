@@ -151,4 +151,3 @@ def convert_audio_to_text(audio_file_path):
     except sr.RequestError as e:
         return f"Could not request results from Google Speech Recognition service; {e}"
 
-
