@@ -1,5 +1,4 @@
 # main_app.py
-import time
 import streamlit as st
 import openai
 import os
@@ -8,7 +7,6 @@ from helper import upload_file_to_blob, list_blob_files, read_blob_data, tanslat
 from streamlit.logger import get_logger
 from PIL import Image
 import pandas as pd
-from io import StringIO
 import json
 import numpy as np
 
@@ -72,7 +70,7 @@ def main():
     
 
     # Sidebar navigation
-    page = st.sidebar.selectbox("Select Page", ["Upload Data", "Chat", "Costing","Podcast Utility","HR Utility","HR Response Page","Request"], index=1)
+    page = st.sidebar.selectbox("Select Page", ["Upload Data", "Chat", "Costing","Podcast Utility","Request services Utility","Request Response Page","Request approval"], index=1)
 
     if page == "Chat":
         chat_page()
@@ -82,11 +80,11 @@ def main():
         costing_page()
     elif page == "Podcast Utility":
         audio_to_text_page()
-    elif page == "HR Utility":
+    elif page == "Request services Utility":
         hr_page()
-    elif page == "HR Response Page":
+    elif page == "Request Response Page":
         display_assistant_reply_page()
-    elif page == "Request":
+    elif page == "Request approval":
         display_selected_rows_page()
 
 
@@ -117,7 +115,7 @@ def upload_page():
 def costing_page():
    ####### COSTING PAGE
 
-    st.caption("Please input your query and configure settings below 👇")
+
 
     # User Input
     user_input = st.text_area("User Input:", "")
@@ -219,7 +217,7 @@ def chat_page():
         
         assistant_reply = response.choices[0].text.strip()
         st.write(assistant_reply)
-        st.session_state['latest_response'] = response
+        st.session_state['latest_response'] = response 
         # st.text(response.usage.prompt_tokens)
         # st.text(response.usage.completion_tokens)
         # st.text(response.usage.total_tokens)
@@ -302,8 +300,6 @@ assistant_table = pd.DataFrame()
 def hr_page():
     global assistant_table  # Add global declaration for the variable
 
-    st.caption("Please input your query and configure settings below 👇")
-
     # User Input
     user_input = st.text_area("User Input:", "")
 
@@ -362,7 +358,8 @@ def display_assistant_reply_page():
     # Display the assistant's reply on this page
     if not assistant_table.empty:
         st.write("Assistant's Reply:")
-        st.dataframe(assistant_table)  # Use st.dataframe to select rows
+        # st.dataframe(assistant_table)  # Use st.dataframe to select rows
+        st.table(assistant_table)
 
         # Add a multiselect widget to select multiple rows
         selected_rows = st.multiselect("Select Rows for Approval", assistant_table.index)

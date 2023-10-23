@@ -6,4 +6,5 @@ requests
 Pillow
 SpeechRecognition
 pandas
-
+json
+numpy
