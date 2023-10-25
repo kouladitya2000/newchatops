@@ -255,8 +255,8 @@ def audio_to_text_page():
 
     if audio_file:
         text = convert_audio_to_text(audio_file)  # Convert audio to text using SpeechRecognition
-        st.write("Converted Text:")
-        st.write(text)
+        # st.write("Converted text:")
+        # st.write(text)
 
         # Define an input box for user input
         user_input = st.text_area("User Input:", "")
